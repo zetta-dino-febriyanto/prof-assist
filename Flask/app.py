@@ -25,18 +25,26 @@ def allowed_file(filename):
 def index():
     return render_template("index.html")
 
-@app.route('/prof-assist', methods=['GET', 'POST'])
-def prof_assist():
+@app.route('/question-answering')
+def question_answering():
+    return render_template('question-answering.html')
+
+@app.route('/question-generator')
+def question_generator():
+    return render_template('question-generator.html')
+
+@app.route('/prof-assist-studio', methods=['GET', 'POST'])
+def prof_assist_studio():
     document = request.files["file"]
     if document and allowed_file(document.filename):
         filename = secure_filename(document.filename)
         document.filename.replace(' ', '_')
         document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename))
-        prof_assist.document_file = os.path.join(app.config["UPLOAD_FOLDERS"], filename)
+        prof_assist_studio.document_file = os.path.join(app.config["UPLOAD_FOLDERS"], filename)
         pdf_converter = PDFToTextConverter(
             remove_numeric_tables=True, valid_languages=["en"])
         converted = pdf_converter.convert(
-            file_path=prof_assist.document_file, meta={"company": "Company_1", "processed": False})
+            file_path=prof_assist_studio.document_file, meta={"company": "Company_1", "processed": False})
         preprocessor = PreProcessor(split_by="word", split_length=200, split_overlap=10)
         preprocessed = preprocessor.process(converted)
         document_store = FAISSDocumentStore(
@@ -47,7 +55,7 @@ def prof_assist():
         reader = FARMReader(
             model_name_or_path="deepset/tinyroberta-squad2", use_gpu=False)
         document_store.update_embeddings(retriever)
-        prof_assist.pipeline = ExtractiveQAPipeline(reader, retriever)
+        prof_assist_studio.pipeline = ExtractiveQAPipeline(reader, retriever)
         return render_template("prof-assist.html")
 
 
