@@ -25,7 +25,6 @@ def allowed_file(filename):
 def index():
     return render_template("index.html")
 
-
 @app.route('/prof-assist', methods=['GET', 'POST'])
 def prof_assist():
     document = request.files["file"]
@@ -33,11 +32,11 @@ def prof_assist():
         filename = secure_filename(document.filename)
         document.filename.replace(' ', '_')
         document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename))
-        document_file = os.path.join(app.config["UPLOAD_FOLDERS"], filename)
+        prof_assist.document_file = os.path.join(app.config["UPLOAD_FOLDERS"], filename)
         pdf_converter = PDFToTextConverter(
             remove_numeric_tables=True, valid_languages=["en"])
         converted = pdf_converter.convert(
-            file_path=document_file, meta={"company": "Company_1", "processed": False})
+            file_path=prof_assist.document_file, meta={"company": "Company_1", "processed": False})
         preprocessor = PreProcessor(split_by="word", split_length=200, split_overlap=10)
         preprocessed = preprocessor.process(converted)
         document_store = FAISSDocumentStore(
@@ -53,21 +52,29 @@ def prof_assist():
 
 
 def chatbot_response(msg):
-    result = []
+    answers = []
+    context = []
     for i in range(5):
-        result.append(get_prof_assist_response.prediction["answers"][i].answer)
-    print(result)
-    return result[0]
-    # return "Hello, I'm ProfAssist. The Teacher's Digital Assistant for Students"
+        answers.append(get_prof_assist_response.prediction["answers"][i].answer)
+        context.append(get_prof_assist_response.prediction["answers"][i].context)
+    result = '{}'.format(answers[0]) + '<br><br>' + '<strong>Context:</strong> ' + context[0] + '....'
+    return result
 
 
 @app.route("/get")
 def get_prof_assist_response():
     query = request.args.get("msg")
+    if query == 'Hello':
+        return "Hello! This is ProfAssist, the teacher's assistant for Students."
     get_prof_assist_response.prediction = prof_assist.pipeline.run(
         query=query, params={"Retriever": {"top_k": 5}, "Reader": {"top_k": 10}}
     )
     return chatbot_response(query)
+
+@app.route("/done")
+def done():
+    os.remove('faiss_document_store.db')
+    return render_template("index.html")
 
 
 if __name__ == "__main__":
