@@ -56,7 +56,7 @@ def prof_assist_studio():
             model_name_or_path="deepset/tinyroberta-squad2", use_gpu=False)
         document_store.update_embeddings(retriever)
         prof_assist_studio.pipeline = ExtractiveQAPipeline(reader, retriever)
-        return render_template("prof-assist.html")
+        return render_template("prof-assist-studio.html")
 
 
 def chatbot_response(msg):
@@ -74,7 +74,7 @@ def get_prof_assist_response():
     query = request.args.get("msg")
     if query == 'Hello':
         return "Hello! This is ProfAssist, the teacher's assistant for Students."
-    get_prof_assist_response.prediction = prof_assist.pipeline.run(
+    get_prof_assist_response.prediction = prof_assist_studio.pipeline.run(
         query=query, params={"Retriever": {"top_k": 5}, "Reader": {"top_k": 10}}
     )
     return chatbot_response(query)
