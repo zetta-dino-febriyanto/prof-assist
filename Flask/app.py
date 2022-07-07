@@ -139,7 +139,7 @@ def questions_result():
             app.config["UPLOAD_FOLDERS"], filename)
         preprocessed = preprocessing(document)
         document_stores = document_store(preprocessed)
-        qag_pipeline = question_generator_pipeline(document_store)
+        qag_pipeline = question_generator_pipeline(document_stores)
         question_generator(document_stores, qag_pipeline)
     return render_template("questions-result.html")
 
