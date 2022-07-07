@@ -65,10 +65,10 @@ def chatbot_response(msg):
     for i in range(5):
         answers.append(get_prof_assist_response.prediction["answers"][i].answer)
         context.append(get_prof_assist_response.prediction["answers"][i].context)
-    result1 = '{}'.format(answers[0]) + '<br><br>' + '<strong>Context:</strong> ' + context[0] + '....'
-    result2 = '{}'.format(answers[0]) + '<br><br>' + '<strong>Context:</strong> ' + context[0] + '....'
-    result3 = '{}'.format(answers[0]) + '<br><br>' + '<strong>Context:</strong> ' + context[0] + '....'
-    return result1, result2, result3
+    result = '<strong>Answer 1: </strong>' + '{}'.format(answers[0]) + '<br><br>' + '<strong>Context:</strong> ' + context[0] + '....' + '<br><br>' \
+             '<strong>Answer 2: </strong>' +'{}'.format(answers[1]) + '<br><br>' + '<strong>Context:</strong> ' + context[1] + '....' + '<br><br>' \
+             '<strong>Answer 3: </strong>' +'{}'.format(answers[2]) + '<br><br>' + '<strong>Context:</strong> ' + context[2] + '....' 
+    return result
 
 
 @app.route("/get")
