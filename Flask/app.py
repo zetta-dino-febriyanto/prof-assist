@@ -70,7 +70,7 @@ def prof_assist_studio():
 @app.route('/questions-result', methods=['GET', 'POST'])
 def questions_result():
     document = request.files["file"]
-    if document and allowed_file(filename):
+    if document and allowed_file(document.filename):
         filename = secure_filename(document.filename)
         document.filename.replace(' ', '_')
         document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename))
@@ -87,7 +87,7 @@ def questions_result():
         document_store.write_documents(preprocessed)
         reader = FARMReader(model_name_or_path="deepset/tinyroberta-squad2", use_gpu=False)
         question_generator = QuestionGenerator()
-        qag_pipeline = QuestionAnswerGeneratorPipeline(question_generator, reader)
+        qag_pipeline = QuestionAnswerGenerationPipeline(question_generator, reader)
         row = 1
         column = 0
         workbook = xlsxwriter.Workbook('Generated_Questions.xlsx')
@@ -95,7 +95,7 @@ def questions_result():
         worksheet.write(0, 0, 'Question')
         worksheet.write(0, 1, 'Answer')
         worksheet.write(0, 2, 'Context')
-        for idx, document in enumerate(tqdm(preprocessed)):
+        for idx, document in enumerate(tqdm(document_store.write_documents(preprocessed))):
             res = qag_pipeline.run(document)
             for i in range (0, len(res['queries'])):
                 print('Question: ', res['queries'][i])
@@ -144,7 +144,10 @@ def get_prof_assist_response():
 
 @app.route("/done")
 def done():
-    os.remove('faiss_document_store.db')
+    try:
+        os.remove('faiss_document_store.db')
+    except:
+        pass
     return render_template("index.html")
 
 
