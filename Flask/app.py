@@ -108,8 +108,8 @@ def question_generator(document_store, qag_pipeline):
     worksheet.write(0, 0, 'Question')
     worksheet.write(0, 1, 'Answer')
     worksheet.write(0, 2, 'Context')
-    for idx, document in enumerate(tqdm(document_store)):
-            res = qag_pipeline.run(document)
+    for idx, document in enumerate(tqdm.tqdm(document_store)):
+            res = qag_pipeline.run(documents=[document])
             for i in range(0, len(res['queries'])):
                 print('Question: ', res['queries'][i])
                 query = res['queries'][i]
@@ -146,7 +146,7 @@ def questions_result():
 
 @app.route('/download_excel')
 def download_file():
-    excel = 'static/'+questions_result.filename_excel
+    excel = 'static/'+question_generator.filename_excel
     return send_file(excel, as_attachment=True)
 
 
