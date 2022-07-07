@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 from haystack.nodes import PDFToTextConverter, PreProcessor, QuestionGenerator
 from haystack.preprocessor import PreProcessor
@@ -15,6 +15,7 @@ from haystack.pipelines import (
 from haystack.utils import print_questions
 import tqdm
 import xlsxwriter
+import time
 
 app = Flask(__name__)
 
@@ -109,7 +110,15 @@ def questions_result():
                 contexts = res['answers'][i][0].context
                 worksheet.write(row, column + 2, contexts)
                 row += 1
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        questions_result.filename_excel = timestr + '.xls'
         workbook.close()
+    return render_template("questions-result.html")
+
+@app.route('/download_excel')
+def download_file():
+    excel = 'static/'+questions_result.filename_excel
+    return send_file(excel, as_attachment=True)
 
 def chatbot_response(msg):
     answers = []
