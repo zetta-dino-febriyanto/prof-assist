@@ -109,20 +109,20 @@ def question_generator(document_store, qag_pipeline):
     worksheet.write(0, 1, 'Answer')
     worksheet.write(0, 2, 'Context')
     for idx, document in enumerate(tqdm.tqdm(document_store)):
-            res = qag_pipeline.run(documents=[document])
-            for i in range(0, len(res['queries'])):
-                print('Question: ', res['queries'][i])
-                query = res['queries'][i]
-                worksheet.write(row, column, query)
+        res = qag_pipeline.run(documents=[document])
+        for i in range(0, len(res['queries'])):
+            print('Question: ', res['queries'][i])
+            query = res['queries'][i]
+            worksheet.write(row, column, query)
 
-                print('Answer: ', res['answers'][i][0].answer)
-                answer = res['answers'][i][0].answer
-                worksheet.write(row, column + 1, answer)
+            print('Answer: ', res['answers'][i][0].answer)
+            answer = res['answers'][i][0].answer
+            worksheet.write(row, column + 1, answer)
 
-                print('Context: ', res['answers'][i][0].context)
-                contexts = res['answers'][i][0].context
-                worksheet.write(row, column + 2, contexts)
-                row += 1
+            print('Context: ', res['answers'][i][0].context)
+            contexts = res['answers'][i][0].context
+            worksheet.write(row, column + 2, contexts)
+            row += 1
     timestr = time.strftime("%Y%m%d-%H%M%S")
     question_generator.filename_excel = timestr + '.xls'
     workbook.close()
@@ -162,7 +162,7 @@ def chatbot_response(msg):
              '<strong>Answer 2: </strong>' + '{}'.format(answers[1]) + '<br><br>' + '<strong>Context:</strong> ' + context[1] + '....' + '<br><br>' \
              '<strong>Answer 3: </strong>' + \
         '{}'.format(answers[2]) + '<br><br>' + \
-    '<strong>Context:</strong> ' + context[2] + '....'
+        '<strong>Context:</strong> ' + context[2] + '....'
     return result
 
 
