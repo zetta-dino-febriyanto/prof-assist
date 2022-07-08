@@ -42,6 +42,7 @@ def prof_assist_studio():
             app.config["UPLOAD_FOLDERS"], filename)
         preprocessed = md.preprocessing(prof_assist_studio.document_file)
         document_store = md.document_store(preprocessed)
+        prof_assist_studio.pipeline = md.question_answer_pipeline(document_store)
     return render_template("prof-assist-studio.html")
 
 
@@ -57,13 +58,13 @@ def questions_result():
         preprocessed = md.preprocessing(questions_result.document_file)
         document_stores = md.document_store(preprocessed)
         qag_pipeline = md.question_generator_pipeline(document_stores)
-        question_generator(document_stores, qag_pipeline)
+        md.question_generator(document_stores, qag_pipeline)
     return render_template("questions-result.html")
 
 
 @app.route('/download_excel')
 def download_file():
-    excel = 'static/'+question_generator.filename_excel
+    excel = 'static/'+md.question_generator.filename_excel
     return send_file(excel, as_attachment=True)
 
 
