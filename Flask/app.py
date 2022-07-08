@@ -89,7 +89,7 @@ def document_store(document_preprocessed):
         faiss_index_factory_str="Flat", return_embedding=True,)
     document_store.delete_all_documents()
     document_store.write_documents(document_preprocessed)
-    return
+    return document_store
 
 
 def question_generator_pipeline(document_store):
@@ -103,7 +103,9 @@ def question_generator_pipeline(document_store):
 def question_generator(document_store, qag_pipeline):
     row = 1
     column = 0
-    workbook = xlsxwriter.Workbook('Generated_Questions.xlsx')
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    question_generator.filename_excel = timestr + '.xls'
+    workbook = xlsxwriter.Workbook('static/'+question_generator.filename_excel)
     worksheet = workbook.add_worksheet('Sheet 1')
     worksheet.write(0, 0, 'Question')
     worksheet.write(0, 1, 'Answer')
@@ -111,20 +113,18 @@ def question_generator(document_store, qag_pipeline):
     for idx, document in enumerate(tqdm.tqdm(document_store)):
         res = qag_pipeline.run(documents=[document])
         for i in range(0, len(res['queries'])):
-            print('Question: ', res['queries'][i])
+            # print('Question: ', res['queries'][i])
             query = res['queries'][i]
             worksheet.write(row, column, query)
 
-            print('Answer: ', res['answers'][i][0].answer)
+            # print('Answer: ', res['answers'][i][0].answer)
             answer = res['answers'][i][0].answer
             worksheet.write(row, column + 1, answer)
 
-            print('Context: ', res['answers'][i][0].context)
+            # print('Context: ', res['answers'][i][0].context)
             contexts = res['answers'][i][0].context
             worksheet.write(row, column + 2, contexts)
             row += 1
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    question_generator.filename_excel = timestr + '.xls'
     workbook.close()
 
 
@@ -135,9 +135,8 @@ def questions_result():
         filename = secure_filename(document.filename)
         document.filename.replace(' ', '_')
         document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename))
-        prof_assist_studio.document_file = os.path.join(
-            app.config["UPLOAD_FOLDERS"], filename)
-        preprocessed = preprocessing(document)
+        prof_assist_studio.document_file = os.path.join(app.config["UPLOAD_FOLDERS"], filename)
+        preprocessed = preprocessing(prof_assist_studio.document_file)
         document_stores = document_store(preprocessed)
         qag_pipeline = question_generator_pipeline(document_stores)
         question_generator(document_stores, qag_pipeline)
