@@ -39,8 +39,8 @@ def document_store(document_preprocessed):
     :param object document_preprocessed: Document that has been preprocessed
     '''
     #Initialization of Document Store
-    document_store = FAISSDocumentStore(
-        faiss_index_factory_str="Flat", return_embedding=True,)
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    document_store = FAISSDocumentStore(sql_url='sqlite:///'+timestr+'_document_store.db', faiss_index_factory_str="Flat", return_embedding=True,)
 
     #Delete all Documents on Document Store (to make sure is the document store is empty)
     document_store.delete_all_documents()
