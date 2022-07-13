@@ -41,7 +41,7 @@ def document_store(document_preprocessed):
     '''
     #Initialization of Document Store
     document_store = FAISSDocumentStore(
-        faiss_index_factory_str="Flat", return_embedding=True,)
+        faiss_index_factory_str="Flat", return_embedding=True)
 
     #Delete all Documents on Document Store (to make sure is the document store is empty)
     document_store.delete_all_documents()
