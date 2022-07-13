@@ -78,9 +78,9 @@ def chatbot_response(msg):
     context = [] # Initialize the context list
     for i in range(5): # Get the 5 most recent answers
         answers.append(
-            get_prof_assist_response.prediction["answers"][i].answer) # Get the answer
+            get_prof_assist_response.prediction["answers"][i].answer) # Get the answer and append it to the answers list
         context.append(
-            get_prof_assist_response.prediction["answers"][i].context) # Get the context
+            get_prof_assist_response.prediction["answers"][i].context) # Get the context and append it to the context list
     # Get the result of the top 3 answers
     # and also return the context of each answer
     result = \
