@@ -61,7 +61,7 @@ def questions_result():
         questions_result.document_file = os.path.join(
             app.config["UPLOAD_FOLDERS"], filename) # Store the document path
         preprocessed = md.preprocessing(questions_result.document_file) # Preprocess the document
-        document_stores = md.document_store(preprocessed) # Store the processed document
+        document_stores = md.summarization(preprocessed) # Summarize the Document
         qag_pipeline = md.question_generator_pipeline(document_stores) # Get the question generator pipeline
         md.question_generator(document_stores, qag_pipeline) # Get the questions generated
     return render_template("questions-result.html") # A route to get the question generator result
