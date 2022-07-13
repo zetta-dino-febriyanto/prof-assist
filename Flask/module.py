@@ -109,11 +109,17 @@ def question_generator(document_store, qag_pipeline):
     column = 0
     timestr = time.strftime("%Y%m%d-%H%M%S")
     question_generator.filename_excel = timestr + '.xls'
+
+    #Make excel file
     workbook = xlsxwriter.Workbook('static/'+question_generator.filename_excel)
+    #Add sheet on excel file
     worksheet = workbook.add_worksheet('Sheet 1')
+    #Add Data on excel file
     worksheet.write(0, 0, 'Question')
     worksheet.write(0, 1, 'Answer')
     worksheet.write(0, 2, 'Context')
+
+    #Perform Question Generator
     for idx, document in enumerate(tqdm.tqdm(document_store)):
         res = qag_pipeline.run(documents=[document])
         for i in range(0, len(res['queries'])):
