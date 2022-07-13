@@ -81,10 +81,12 @@ def chatbot_response(msg):
             get_prof_assist_response.prediction["answers"][i].answer) # Get the answer
         context.append(
             get_prof_assist_response.prediction["answers"][i].context) # Get the context
+    # Get the result of the top 3 answers
+    # and also return the context of each answer
     result = \
         '<strong>Answer 1: </strong>' + '{}'.format(answers[0]) + '<br><br>' + '<strong>Context:</strong> ' + context[0] + '....' + '<br><br>' \
         '<strong>Answer 2: </strong>' + '{}'.format(answers[1]) + '<br><br>' + '<strong>Context:</strong> ' + context[1] + '....' + '<br><br>' \
-        '<strong>Answer 3: </strong>' + '{}'.format(answers[2]) + '<br><br>' + '<strong>Context:</strong> ' + context[2] + '....' # Get the result
+        '<strong>Answer 3: </strong>' + '{}'.format(answers[2]) + '<br><br>' + '<strong>Context:</strong> ' + context[2] + '....' 
     return result # Return the result
 
 
