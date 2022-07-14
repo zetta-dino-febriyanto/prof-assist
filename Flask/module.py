@@ -1,4 +1,4 @@
-from haystack.nodes import PDFToTextConverter, PreProcessor, QuestionGenerator
+from haystack.nodes import PDFToTextConverter, PreProcessor, QuestionGenerator, TransformersSummarizer
 from haystack.preprocessor import PreProcessor
 from haystack.document_stores.faiss import FAISSDocumentStore
 from haystack.retriever import DensePassageRetriever
@@ -7,7 +7,6 @@ from haystack.pipelines import ExtractiveQAPipeline, QuestionAnswerGenerationPip
 import tqdm
 import xlsxwriter
 import time
-
 
 def preprocessing(file_path):
     '''
@@ -75,6 +74,18 @@ def question_answer_pipeline(document_store):
     #Return the pipeline
     return pipeline
 
+def summarization(document_preprocessed):
+    '''
+    This function is to summarize the document and store it to document store
+
+    :param object document_preprocessed: Document that has been preprocessed
+    '''
+    summarizer = TransformersSummarizer(model_name_or_path="google/pegasus-xsum", min_length=200)
+
+    summary = summarizer.predict(documents=document_preprocessed, generate_single_summary=False)
+
+    return summary
+
 
 def question_generator_pipeline(document_store):
     '''
@@ -105,6 +116,8 @@ def question_generator(document_store, qag_pipeline):
     :param object qag_pipeline: Question generator pipeline
     '''
     #Initialize Variable
+    summarizer = TransformersSummarizer(model_name_or_path="google/pegasus-xsum", min_length=200)
+    summary = summarizer.predict(documents=preprocessed, generate_single_summary=False)
     row = 1
     column = 0
     timestr = time.strftime("%Y%m%d-%H%M%S")
