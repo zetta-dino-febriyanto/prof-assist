@@ -166,6 +166,31 @@ def question_answer_api_request():
     except Exception as e:
         return {'error': str(e)}
 
+# An API Route to post the document for question generator
+@app.route('/api/upload-question-generator', methods=['GET', 'POST'])
+def question_generator_api():
+    document = request.files["file"] # Get the file from the request
+    if document and allowed_file(document.filename): # Check if the document is valid
+        filename = secure_filename(document.filename) # Get the filename
+        document.filename.replace(' ', '_') # Replace the spaces with underscores
+        document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename)) # Save the document
+        questions_result.document_file = os.path.join(
+            app.config["UPLOAD_FOLDERS"], filename) # Store the document path
+        preprocessed = md.preprocessing(questions_result.document_file) # Preprocess the document
+        document_stores = md.summarization(preprocessed) # Summarize the Document
+        qag_pipeline = md.question_generator_pipeline(document_stores) # Get the question generator pipeline
+        file_excel = md.question_generator(document_stores, qag_pipeline) # Get the questions generated
+    json = {
+        'status_code': 200,
+        'message': 'OK',
+        'data': [
+            {
+                'result': file_excel,
+            }
+        ]
+    }
+    return jsonify(json)
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'message': 'Endpoint not found', 'status_code': 404})
