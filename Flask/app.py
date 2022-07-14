@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import module as md
 
@@ -106,6 +106,69 @@ def get_prof_assist_response():
 def done():
     return render_template("index.html") # Return to the index page
 
+
+# API Routing
+@app.route('/api')
+def index_api():
+    json = {
+        'status_code': 200,
+        'status_message': 'OK',
+        'data': []
+    }
+    return jsonify(json)
+
+
+# An API Route to post the document
+@app.route('/api/upload-question-answer', methods=['GET', 'POST'])
+def question_answer_api():
+    document = request.files["file"] # Get the file from the request
+    if document and allowed_file(document.filename): # Check if the file is allowed
+        filename = secure_filename(document.filename) # Get the filename
+        document.filename.replace(' ', '_') # Replace spaces with underscores
+        document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename)) # Save the file
+        prof_assist_studio.document_file = os.path.join(
+            app.config["UPLOAD_FOLDERS"], filename) # Save the file path
+        preprocessed = md.preprocessing(prof_assist_studio.document_file) # Preprocess the document
+        document_store = md.document_store(preprocessed) # Store the preprocessed document
+        prof_assist_studio.pipeline = md.question_answer_pipeline(document_store) # Running the question answering pipeline    
+    json = {
+        'status_code': 200,
+        'message': 'OK',
+        'data': [
+            {
+                'filename': filename,
+            }
+        ]
+    }
+    return jsonify(json)
+
+# An API Route to handle question answer request
+@app.route('/api/question-answer', methods=['GET', 'POST'])
+def question_answer_api_request():
+    try:
+        input_json = request.get_json() # Get the input json
+        query = input_json['query'] # Get the query
+        prediction = prof_assist_studio.pipeline.run(
+        query=query, params={"Retriever": {"top_k": 5}, "Reader": {"top_k": 10}}) # Get the prediction
+        for i in prediction:
+            print(i.answer)
+            print(i.context)
+            json = {
+                'results': [
+                    {
+                        'question': query,
+                        'answer': i.answer,
+                        'context': i.context
+                    }
+                ]
+            }
+        return jsonify(json) # Return the json
+    except Exception as e:
+        return {'error': str(e)}
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'message': 'Endpoint not found', 'status_code': 404})
 
 if __name__ == "__main__":
     app.run(debug=True)
