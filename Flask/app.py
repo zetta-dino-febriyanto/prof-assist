@@ -103,10 +103,6 @@ def get_prof_assist_response():
 
 @app.route("/done")
 def done():
-    try: # Try to get the question generator result
-        os.remove('faiss_document_store.db') # Remove the document store if it exists
-    except: # If the document store does not exist
-        pass # Do nothing
     return render_template("index.html") # Return to the index page
 
 
