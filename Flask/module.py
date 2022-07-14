@@ -108,10 +108,10 @@ def question_generator(document_store, qag_pipeline):
     row = 1
     column = 0
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    question_generator.filename_excel = timestr + '.xls'
+    filename_excel = timestr + '.xls'
 
     #Make excel file
-    workbook = xlsxwriter.Workbook('static/'+question_generator.filename_excel)
+    workbook = xlsxwriter.Workbook('static/'+filename_excel)
     #Add sheet on excel file
     worksheet = workbook.add_worksheet('Sheet 1')
     #Add Data on excel file
@@ -133,3 +133,7 @@ def question_generator(document_store, qag_pipeline):
             worksheet.write(row, column + 2, contexts)
             row += 1
     workbook.close()
+
+    return filename_excel
+
+

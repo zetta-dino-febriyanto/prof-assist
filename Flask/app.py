@@ -63,14 +63,15 @@ def questions_result():
         preprocessed = md.preprocessing(questions_result.document_file) # Preprocess the document
         document_stores = md.document_store(preprocessed) # Store the processed document
         qag_pipeline = md.question_generator_pipeline(document_stores) # Get the question generator pipeline
-        md.question_generator(document_stores, qag_pipeline) # Get the questions generated
-    return render_template("questions-result.html") # A route to get the question generator result
+        file_excel = md.question_generator(document_stores, qag_pipeline) # Get the questions generated
+    return render_template("questions-result.html", file_excel=file_excel) # A route to get the question generator result
 
 
-@app.route('/download_excel')
-def download_file():
-    excel = 'static/'+md.question_generator.filename_excel # Get the Excel file path
-    return send_file(excel, as_attachment=True) # Return download excel file
+@app.route('/download_excel/<excel>')
+def download_file(excel):
+  excel = 'static/'+excel
+  print(excel)
+  return send_file(excel, as_attachment=True) # Return download excel file
 
 
 def chatbot_response(msg):
