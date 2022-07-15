@@ -191,7 +191,8 @@ def question_generator_api():
         'message': 'OK',
         'data': [
             {
-                'result': file_excel,
+                #For Url is not fix. You can change the url based on the server url
+                'result': 'https://375f-34-147-23-168.eu.ngrok.io/static/'+file_excel,
             }
         ]
     }
