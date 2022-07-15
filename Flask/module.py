@@ -117,7 +117,7 @@ def question_generator(document_store, qag_pipeline):
     '''
     #Initialize Variable
     summarizer = TransformersSummarizer(model_name_or_path="google/pegasus-xsum", min_length=200)
-    summary = summarizer.predict(documents=preprocessed, generate_single_summary=False)
+    summary = summarizer.predict(documents=document_store, generate_single_summary=False)
     row = 1
     column = 0
     timestr = time.strftime("%Y%m%d-%H%M%S")

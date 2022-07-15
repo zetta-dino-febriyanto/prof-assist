@@ -61,7 +61,7 @@ def questions_result():
         questions_result.document_file = os.path.join(
             app.config["UPLOAD_FOLDERS"], filename) # Store the document path
         preprocessed = md.preprocessing(questions_result.document_file) # Preprocess the document
-        document_stores = md.summarization(preprocessed) # Summarize the Document
+        document_stores = md.document_store(preprocessed) # Summarize the Document
         qag_pipeline = md.question_generator_pipeline(document_stores) # Get the question generator pipeline
         file_excel = md.question_generator(document_stores, qag_pipeline) # Get the questions generated
     return render_template("questions-result.html", file_excel=file_excel) # A route to get the question generator result
@@ -126,11 +126,11 @@ def question_answer_api():
         filename = secure_filename(document.filename) # Get the filename
         document.filename.replace(' ', '_') # Replace spaces with underscores
         document.save(os.path.join(app.config["UPLOAD_FOLDERS"], filename)) # Save the file
-        prof_assist_studio.document_file = os.path.join(
+        question_answer_api.document_file = os.path.join(
             app.config["UPLOAD_FOLDERS"], filename) # Save the file path
-        preprocessed = md.preprocessing(prof_assist_studio.document_file) # Preprocess the document
+        preprocessed = md.preprocessing(question_answer_api.document_file) # Preprocess the document
         document_store = md.document_store(preprocessed) # Store the preprocessed document
-        prof_assist_studio.pipeline = md.question_answer_pipeline(document_store) # Running the question answering pipeline    
+        question_answer_api.pipeline = md.question_answer_pipeline(document_store) # Running the question answering pipeline    
     json = {
         'status_code': 200,
         'message': 'OK',
@@ -148,20 +148,26 @@ def question_answer_api_request():
     try:
         input_json = request.get_json() # Get the input json
         query = input_json['query'] # Get the query
-        prediction = prof_assist_studio.pipeline.run(
+        print(query)
+        prediction = question_answer_api.pipeline.run(
         query=query, params={"Retriever": {"top_k": 5}, "Reader": {"top_k": 10}}) # Get the prediction
-        for i in prediction:
-            print(i.answer)
-            print(i.context)
-            json = {
-                'results': [
-                    {
-                        'question': query,
-                        'answer': i.answer,
-                        'context': i.context
-                    }
-                ]
-            }
+        answers = [] # Initialize the answers list
+        context = [] # Initialize the context list
+        for i in range(3): # Get the 5 most recent answers
+          answers.append(
+              prediction["answers"][i].answer) # Get the answer and append it to the answers list
+          context.append(
+              prediction["answers"][i].context) 
+
+        json = {
+            'results': [
+                {
+                    'question': query,
+                    'answer': answers,
+                    'context': context
+                }
+            ]
+        }
         return jsonify(json) # Return the json
     except Exception as e:
         return {'error': str(e)}
@@ -177,7 +183,7 @@ def question_generator_api():
         questions_result.document_file = os.path.join(
             app.config["UPLOAD_FOLDERS"], filename) # Store the document path
         preprocessed = md.preprocessing(questions_result.document_file) # Preprocess the document
-        document_stores = md.summarization(preprocessed) # Summarize the Document
+        document_stores = md.document_store(preprocessed) # Summarize the Document
         qag_pipeline = md.question_generator_pipeline(document_stores) # Get the question generator pipeline
         file_excel = md.question_generator(document_stores, qag_pipeline) # Get the questions generated
     json = {
